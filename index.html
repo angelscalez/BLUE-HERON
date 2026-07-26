@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Angel Dragon</title>
+
+<style>
+body{
+    margin:0;
+    background:linear-gradient(#6ec6ff,#dff7ff);
+    font-family:Arial,sans-serif;
+    text-align:center;
+    overflow:hidden;
+}
+
+h1{margin-top:10px;color:white;text-shadow:2px 2px 4px black;}
+
+#stats{
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    font-size:20px;
+    color:#222;
+    margin:15px;
+}
+
+#dragon{
+    font-size:140px;
+    transition:.3s;
+    user-select:none;
+}
+
+#message{
+    height:30px;
+    font-size:22px;
+    color:#fff;
+    text-shadow:1px 1px 3px black;
+}
+
+button{
+    margin:6px;
+    padding:10px 18px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+.particle{
+    position:absolute;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    pointer-events:none;
+    animation:rise 2s linear forwards;
+}
+
+@keyframes rise{
+from{
+transform:translateY(0) scale(1);
+opacity:1;
+}
+to{
+transform:translateY(-180px) translateX(var(--x)) scale(.2);
+opacity:0;
+}
+}
+</style>
+</head>
+
+<body>
+
+<h1>🐉 Angel Dragon 🪽</h1>
+
+<div id="stats">
+<div>🍖 <span id="food">100</span></div>
+<div>💧 <span id="water">100</span></div>
+<div>😊 <span id="happy">100</span></div>
+</div>
+
+<div id="dragon">🐉😇</div>
+
+<div id="message">Your dragon loves you.</div>
+
+<div>
+<button onclick="feed()">🍖 Feed</button>
+<button onclick="drink()">💧 Water</button>
+<button onclick="pet()">❤️ Pet</button>
+<button onclick="magicSmoke()">✨ Magic Smoke</button>
+</div>
+
+<script>
+
+let food=100;
+let water=100;
+let happy=100;
+
+function update(){
+food=Math.max(0,food);
+water=Math.max(0,water);
+happy=Math.max(0,happy);
+
+document.getElementById("food").textContent=Math.floor(food);
+document.getElementById("water").textContent=Math.floor(water);
+document.getElementById("happy").textContent=Math.floor(happy);
+
+if(food==0||water==0){
+document.getElementById("message").textContent="Your dragon needs care!";
+}
+}
+
+function feed(){
+food=Math.min(100,food+20);
+happy=Math.min(100,happy+5);
+message("Yum!");
+update();
+}
+
+function drink(){
+water=Math.min(100,water+20);
+happy=Math.min(100,happy+5);
+message("Refreshing!");
+update();
+}
+
+function pet(){
+happy=Math.min(100,happy+12);
+document.getElementById("dragon").style.transform="scale(1.1)";
+setTimeout(()=>{
+document.getElementById("dragon").style.transform="scale(1)";
+},200);
+message("Happy dragon!");
+update();
+}
+
+function message(t){
+document.getElementById("message").textContent=t;
+}
+
+setInterval(()=>{
+food-=1;
+water-=1;
+happy-=0.5;
+update();
+},1000);
+
+// Special occasions
+const events=[
+"🎂 Birthday!",
+"🎉 Festival!",
+"🌈 Rainbow Celebration!",
+"⭐ Angel Day!"
+];
+
+setInterval(()=>{
+let e=events[Math.floor(Math.random()*events.length)];
+happy=Math.min(100,happy+20);
+message(e);
+update();
+},25000);
+
+// Magic smoke effect
+function magicSmoke(){
+
+let dragon=document.getElementById("dragon");
+let r=dragon.getBoundingClientRect();
+
+for(let i=0;i<30;i++){
+
+let p=document.createElement("div");
+p.className="particle";
+
+let colors=["#ffffff","#cccccc","#ddddff","#88ddff","#ffdd88"];
+
+p.style.background=colors[Math.floor(Math.random()*colors.length)];
+
+p.style.left=(r.left+r.width/2)+"px";
+p.style.top=(r.top+50)+"px";
+p.style.setProperty("--x",(Math.random()*180-90)+"px");
+
+document.body.appendChild(p);
+
+setTimeout(()=>p.remove(),2000);
+
+}
+
+message("✨ The dragon blows magical sparkling smoke.");
+}
+
+update();
+
+</script>
+
+</body>
+</html>
