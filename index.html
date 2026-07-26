@@ -1,73 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Angel Dragon</title>
 
 <style>
-body{
+body {
     margin:0;
-    background:linear-gradient(#6ec6ff,#dff7ff);
-    font-family:Arial,sans-serif;
-    text-align:center;
     overflow:hidden;
+    font-family:Arial;
+    text-align:center;
+    background:linear-gradient(#78c8ff,#f5d7ff);
 }
 
-h1{margin-top:10px;color:white;text-shadow:2px 2px 4px black;}
-
-#stats{
-    display:flex;
-    justify-content:center;
-    gap:25px;
-    font-size:20px;
-    color:#222;
-    margin:15px;
+h1 {
+    color:white;
+    text-shadow:2px 2px 5px #333;
 }
 
-#dragon{
-    font-size:140px;
-    transition:.3s;
-    user-select:none;
+#world {
+    height:55vh;
+    position:relative;
 }
 
-#message{
-    height:30px;
-    font-size:22px;
-    color:#fff;
-    text-shadow:1px 1px 3px black;
-}
-
-button{
-    margin:6px;
-    padding:10px 18px;
-    font-size:18px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-}
-
-button:hover{
-    transform:scale(1.05);
-}
-
-.particle{
+#dragon {
+    font-size:120px;
     position:absolute;
-    width:12px;
-    height:12px;
-    border-radius:50%;
-    pointer-events:none;
-    animation:rise 2s linear forwards;
+    left:50%;
+    top:35%;
+    transform:translate(-50%,-50%);
+    animation:float 2s infinite ease-in-out;
 }
 
-@keyframes rise{
-from{
-transform:translateY(0) scale(1);
-opacity:1;
+@keyframes float {
+    0%,100% {margin-top:0;}
+    50% {margin-top:-25px;}
 }
-to{
-transform:translateY(-180px) translateX(var(--x)) scale(.2);
-opacity:0;
+
+.wings {
+    animation:flap .6s infinite alternate;
 }
+
+@keyframes flap {
+    from {transform:scaleY(1);}
+    to {transform:scaleY(.7);}
+}
+
+#stats {
+    background:white;
+    margin:10px;
+    padding:10px;
+    border-radius:15px;
+}
+
+button {
+    font-size:18px;
+    padding:12px;
+    margin:5px;
+    border-radius:15px;
+    border:none;
+    background:#ffd36a;
+}
+
+button:active {
+    transform:scale(.9);
+}
+
+.spark {
+    position:absolute;
+    width:15px;
+    height:15px;
+    background:#fff27a;
+    border-radius:50%;
+    animation:magic 1.5s forwards;
+}
+
+@keyframes magic {
+    from {
+        opacity:1;
+        transform:translateY(0);
+    }
+    to {
+        opacity:0;
+        transform:translateY(-200px);
+    }
+}
+
+#message {
+    color:white;
+    font-size:20px;
+    text-shadow:1px 1px 4px black;
 }
 </style>
 </head>
@@ -76,120 +99,114 @@ opacity:0;
 
 <h1>🐉 Angel Dragon 🪽</h1>
 
-<div id="stats">
-<div>🍖 <span id="food">100</span></div>
-<div>💧 <span id="water">100</span></div>
-<div>😊 <span id="happy">100</span></div>
+<div id="world">
+    <div id="dragon">
+        🐉<span class="wings">🪽</span>
+    </div>
 </div>
 
-<div id="dragon">🐉😇</div>
+<div id="stats">
+🍖 Hunger: <span id="food">100</span><br>
+💧 Thirst: <span id="water">100</span><br>
+❤️ Happiness: <span id="happy">100</span>
+</div>
 
-<div id="message">Your dragon loves you.</div>
+<div id="message">
+Your angel dragon is happy!
+</div>
 
-<div>
 <button onclick="feed()">🍖 Feed</button>
 <button onclick="drink()">💧 Water</button>
 <button onclick="pet()">❤️ Pet</button>
-<button onclick="magicSmoke()">✨ Magic Smoke</button>
-</div>
+<button onclick="magic()">✨ Magic Breath</button>
 
 <script>
 
-let food=100;
-let water=100;
-let happy=100;
+let data = JSON.parse(localStorage.getItem("dragonSave")) || {
+food:100,
+water:100,
+happy:100
+};
+
+function save(){
+localStorage.setItem("dragonSave",JSON.stringify(data));
+}
 
 function update(){
-food=Math.max(0,food);
-water=Math.max(0,water);
-happy=Math.max(0,happy);
 
-document.getElementById("food").textContent=Math.floor(food);
-document.getElementById("water").textContent=Math.floor(water);
-document.getElementById("happy").textContent=Math.floor(happy);
+data.food=Math.max(0,data.food);
+data.water=Math.max(0,data.water);
+data.happy=Math.max(0,data.happy);
 
-if(food==0||water==0){
-document.getElementById("message").textContent="Your dragon needs care!";
+food.textContent=Math.floor(data.food);
+water.textContent=Math.floor(data.water);
+happy.textContent=Math.floor(data.happy);
+
+save();
 }
+
+function say(text){
+document.getElementById("message").innerHTML=text;
 }
 
 function feed(){
-food=Math.min(100,food+20);
-happy=Math.min(100,happy+5);
-message("Yum!");
+data.food+=20;
+data.happy+=5;
+say("🍖 Your dragon enjoys the meal!");
 update();
 }
 
 function drink(){
-water=Math.min(100,water+20);
-happy=Math.min(100,happy+5);
-message("Refreshing!");
+data.water+=20;
+data.happy+=5;
+say("💧 Your dragon drinks fresh water!");
 update();
 }
 
 function pet(){
-happy=Math.min(100,happy+12);
-document.getElementById("dragon").style.transform="scale(1.1)";
+data.happy+=10;
+say("❤️ Your dragon loves the attention!");
+update();
+}
+
+function magic(){
+
+say("✨ Magical sparkles fill the sky!");
+
+let d=document.getElementById("dragon");
+let box=d.getBoundingClientRect();
+
+for(let i=0;i<25;i++){
+
+let s=document.createElement("div");
+s.className="spark";
+
+s.style.left=(box.left+60+Math.random()*50)+"px";
+s.style.top=(box.top+50)+"px";
+
+document.body.appendChild(s);
+
 setTimeout(()=>{
-document.getElementById("dragon").style.transform="scale(1)";
-},200);
-message("Happy dragon!");
-update();
+s.remove();
+},1500);
+
 }
 
-function message(t){
-document.getElementById("message").textContent=t;
 }
 
 setInterval(()=>{
-food-=1;
-water-=1;
-happy-=0.5;
-update();
-},1000);
 
-// Special occasions
-const events=[
-"🎂 Birthday!",
-"🎉 Festival!",
-"🌈 Rainbow Celebration!",
-"⭐ Angel Day!"
-];
+data.food-=1;
+data.water-=1;
 
-setInterval(()=>{
-let e=events[Math.floor(Math.random()*events.length)];
-happy=Math.min(100,happy+20);
-message(e);
-update();
-},25000);
-
-// Magic smoke effect
-function magicSmoke(){
-
-let dragon=document.getElementById("dragon");
-let r=dragon.getBoundingClientRect();
-
-for(let i=0;i<30;i++){
-
-let p=document.createElement("div");
-p.className="particle";
-
-let colors=["#ffffff","#cccccc","#ddddff","#88ddff","#ffdd88"];
-
-p.style.background=colors[Math.floor(Math.random()*colors.length)];
-
-p.style.left=(r.left+r.width/2)+"px";
-p.style.top=(r.top+50)+"px";
-p.style.setProperty("--x",(Math.random()*180-90)+"px");
-
-document.body.appendChild(p);
-
-setTimeout(()=>p.remove(),2000);
-
+if(data.food<30 || data.water<30){
+data.happy-=1;
 }
 
-message("✨ The dragon blows magical sparkling smoke.");
-}
+update();
+
+},5000);
+
 
 update();
 
