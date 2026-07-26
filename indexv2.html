@@ -1,1 +1,315 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angel Dragon v2</title>
+
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    font-family:Arial;
+    text-align:center;
+    background:#7bd7ff;
+    transition:background 3s;
+}
+
+h1{
+    color:white;
+    text-shadow:2px 2px 5px #333;
+}
+
+#sky{
+    height:55vh;
+    position:relative;
+    overflow:hidden;
+}
+
+.cloud{
+    position:absolute;
+    font-size:50px;
+    animation:cloud 18s linear infinite;
+}
+
+@keyframes cloud{
+from{left:-100px;}
+to{left:110%;}
+}
+
+#island{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    font-size:90px;
+}
+
+#dragon{
+    position:absolute;
+    top:35%;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:130px;
+    animation:float 2s infinite ease-in-out;
+}
+
+@keyframes float{
+50%{margin-top:-25px;}
+}
+
+.wing{
+    display:inline-block;
+    animation:wing .5s infinite alternate;
+}
+
+@keyframes wing{
+from{transform:rotate(0deg);}
+to{transform:rotate(25deg);}
+}
+
+#panel{
+    background:white;
+    margin:8px;
+    padding:10px;
+    border-radius:15px;
+}
+
+button{
+    padding:12px;
+    margin:4px;
+    font-size:17px;
+    border-radius:12px;
+    border:0;
+    background:#ffd36b;
+}
+
+.spark{
+    position:absolute;
+    font-size:25px;
+    animation:spark 2s forwards;
+}
+
+@keyframes spark{
+to{
+transform:translateY(-200px);
+opacity:0;
+}
+}
+
+.night{
+background:#18204d;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🐉 Angel Dragon Island 🪽</h1>
+
+<div id="sky">
+
+<div class="cloud" style="top:40px;">☁️</div>
+<div class="cloud" style="top:120px;animation-delay:5s;">☁️</div>
+
+<div id="dragon">
+🐉<span class="wing">🪽</span>
+</div>
+
+<div id="island">
+🌳🌸🏝️🌸🌳
+</div>
+
+</div>
+
+
+<div id="panel">
+
+🍖 Hunger: <span id="food"></span><br>
+💧 Water: <span id="water"></span><br>
+❤️ Happiness: <span id="happy"></span><br>
+
+⭐ Level: <span id="level"></span>
+&nbsp;
+✨ XP: <span id="xp"></span>
+<br>
+
+🪙 Coins: <span id="coins"></span>
+
+</div>
+
+<div id="msg">
+Welcome to the dragon island!
+</div>
+
+<button onclick="feed()">🍖 Feed</button>
+<button onclick="drink()">💧 Water</button>
+<button onclick="pet()">❤️ Pet</button>
+<button onclick="magic()">✨ Magic</button>
+<button onclick="treasure()">🎁 Explore</button>
+
+
+<script>
+
+let saveData=JSON.parse(localStorage.getItem("angelDragon"))||{
+
+food:100,
+water:100,
+happy:100,
+xp:0,
+level:1,
+coins:0
+
+};
+
+function update(){
+
+food.textContent=Math.floor(saveData.food);
+water.textContent=Math.floor(saveData.water);
+happy.textContent=Math.floor(saveData.happy);
+xp.textContent=saveData.xp;
+level.textContent=saveData.level;
+coins.textContent=saveData.coins;
+
+localStorage.setItem(
+"angelDragon",
+JSON.stringify(saveData)
+);
+
+}
+
+function msg(t){
+document.getElementById("msg").innerHTML=t;
+}
+
+
+function gainXP(amount){
+
+saveData.xp+=amount;
+
+if(saveData.xp>=100){
+saveData.level++;
+saveData.xp=0;
+msg("🌟 Your dragon grew stronger! Level "+saveData.level);
+}
+
+}
+
+
+function feed(){
+
+saveData.food=Math.min(100,saveData.food+20);
+saveData.happy+=5;
+gainXP(10);
+
+msg("🍖 Dragon enjoyed the food!");
+
+update();
+
+}
+
+
+function drink(){
+
+saveData.water=Math.min(100,saveData.water+20);
+gainXP(5);
+
+msg("💧 Fresh water restored energy!");
+
+update();
+
+}
+
+
+function pet(){
+
+saveData.happy+=10;
+gainXP(8);
+
+msg("❤️ Your dragon is smiling!");
+
+update();
+
+}
+
+
+function magic(){
+
+msg("✨ The dragon releases magical sparkles!");
+
+let d=document.getElementById("dragon");
+let r=d.getBoundingClientRect();
+
+for(let i=0;i<30;i++){
+
+let s=document.createElement("div");
+
+s.className="spark";
+s.innerHTML="✨";
+
+s.style.left=(r.left+50+Math.random()*80)+"px";
+s.style.top=r.top+"px";
+
+document.body.appendChild(s);
+
+setTimeout(()=>s.remove(),2000);
+
+}
+
+gainXP(15);
+update();
+
+}
+
+
+function treasure(){
+
+let found=Math.floor(Math.random()*30)+1;
+
+saveData.coins+=found;
+gainXP(20);
+
+msg("🎁 You found "+found+" coins!");
+
+update();
+
+}
+
+
+setInterval(()=>{
+
+saveData.food--;
+saveData.water--;
+
+if(saveData.food<20||saveData.water<20){
+saveData.happy--;
+}
+
+update();
+
+},5000);
+
+
+// Day/night cycle
+
+let night=false;
+
+setInterval(()=>{
+
+night=!night;
+
+if(night)
+document.body.classList.add("night");
+else
+document.body.classList.remove("night");
+
+},30000);
+
+
+update();
+
+</script>
+
+</body>
+</html>
